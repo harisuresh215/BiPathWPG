@@ -1,0 +1,4 @@
+iter, gearRatio, module, Ns, Np, Nr, numPlanet, fwSunMM, fwPlanetMM, fwRingMM, mass, eff, peakTorque, Cost, Torque_Density, Outer_Bearing_mass, Actuator_width
+1,6.48,0.5,25,56,137,3,5.551,8.0,8.0,0.854,0.958,8.015,0.7377809067377679,9.385245901639346,0.10550000000000001,0
+
+Running Time (sec):  2.126587390899658

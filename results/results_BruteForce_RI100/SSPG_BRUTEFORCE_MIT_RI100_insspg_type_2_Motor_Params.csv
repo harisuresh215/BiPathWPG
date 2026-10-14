@@ -1,0 +1,11 @@
+Motor Parameters:
+maxMotorAngVelRPM,maxMotorAngVelRadPerSec,maxMotorTorque,maxMotorPower,motorMass,motorDia,motorLength
+5040,527.7875658030853,1.2368612720284438,252,0.5,104.0,24.5
+
+Gear strength and size parameters:
+FOS,serviceFactor,stressAnalysisMethodName,maxGearBoxDia,maxGearAllowableStressMPa
+1.2,1.5,MIT,95.1,70
+
+Optimization Parameters:
+K_mass, K_Eff, K_Width, MODULE_MIN, MODULE_MAX, NUM_PLANET_MIN, NUM_PLANET_MAX, NUM_TEETH_SUN_MIN, NUM_TEETH_PLANET_MIN, GEAR_RATIO_MIN, GEAR_RATIO_MAX, GEAR_RATIO_STEP
+1,-2,0.2,0.5,1.2,3,7,18,28,4.0,15,0.1

@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"name": "BiPathWPG",
+			"path": "."
+		},
+		{
+			"name": "New-test",
+			"path": "../New-test"
+		},
+		{
+			"path": "../BipathCPG"
+		}
+	],
+	"settings": {}
+}

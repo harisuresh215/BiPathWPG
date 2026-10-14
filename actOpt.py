@@ -5,6 +5,7 @@ GEARBOX_DISPATCH = {
     "dspg": "Opt_doubleStagePlanetaryGBOptimization",
     "cpg": "Opt_compoundPlanetaryGBOptimization",
     "wpg": "Opt_wolfromPlanetaryGBOptimization",
+    "bipathwpg": "Opt_bipathWolfromPlanetaryGBOptimisation"
 }
 
 def main(motor, gearbox_type, gear_ratio=0):
