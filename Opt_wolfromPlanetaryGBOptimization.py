@@ -45,9 +45,7 @@ wpg_optimization_params = wpg_params["wpg_optimization_parameters"]
 
 motor_driver_data = config_data["Motor_drivers"]
 
-print(type(motor_data))
 
-breakpoint()
 #--------------------------------------------------------
 # Motors Drivers
 #--------------------------------------------------------
