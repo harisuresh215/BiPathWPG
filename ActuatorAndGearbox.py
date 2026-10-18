@@ -11589,3 +11589,6 @@ class optimizationDoubleStagePlanetaryActuator:
                 + self.K_Width * width 
                 + K_gearRatio  * gearRatio_err)
         return cost
+
+
+

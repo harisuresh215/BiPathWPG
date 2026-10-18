@@ -108,6 +108,16 @@
         "small_ring_case_thickness"                                                  : 4,
 
         "tight_clearance_3DP"                                                        : 0.4,
-        "loose_clearance_3DP"                                                        : 0.8
+        "loose_clearance_3DP"                                                        : 0.8,
+
+
+        
+        "floating_sun_min_teeth"      : 18,
+        "floating_sun_min_wall"       : 2.5,
+        "floating_sun_bore_clearance" : 0.8,
+        "idler_planet_min_gap"        : 1.5,
+        "main_sun_plane2_toothed"     : 1,
+        "floating_sun_axial_clearance": 0.8,
+        "idler_bearing_count"         : 2
     }
 }

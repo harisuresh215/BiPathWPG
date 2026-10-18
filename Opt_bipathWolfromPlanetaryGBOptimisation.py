@@ -1,10 +1,10 @@
 import sys
 import numpy as np
-from ActuatorAndGearbox import motor
-from ActuatorAndGearbox import material
-from ActuatorAndGearbox import wolfromPlanetaryGearbox
-from ActuatorAndGearbox import wolfromPlanetaryActuator
-from ActuatorAndGearbox import optimizationWolfromPlanetaryActuator
+from NewActuator import motor
+from NewActuator import material
+from NewActuator import bipathwolfromPlanetaryGearbox
+from NewActuator import bipathwolfromPlanetaryActuator
+from NewActuator import optimizationbipathWolfromPlanetaryActuator
 import sys
 import json
 import os
@@ -24,7 +24,7 @@ with open(config_path, "r") as config_file:
     config_data = json.load(config_file)
 
 with open(wpg_params_path, "r") as wpg_params_file:
-    wpg_params = json.load(wpg_params_file)
+    bipathwpg_params = json.load(wpg_params_file)
 
 #---------------------------------------------------
 # Transferring relevant data to individual variables
@@ -40,8 +40,8 @@ Steel    = material_properties["Steel"]
 Aluminum = material_properties["Aluminum"]
 PLA      = material_properties["PLA"]
 
-wpg_design_params       = wpg_params["wpg_3DP_design_parameters"]
-wpg_optimization_params = wpg_params["wpg_optimization_parameters"]
+bipathwpg_design_params       = bipathwpg_params["wpg_3DP_design_parameters"]
+bipathwpg_optimization_params = bipathwpg_params["wpg_optimization_parameters"]
 
 motor_driver_data = config_data["Motor_drivers"]
 
@@ -293,7 +293,7 @@ MotorMAD_M6C12 = motor(maxMotorAngVelRPM          = MotorMAD_M6C12_maxMotorAngVe
 #-------------------------------------------------------
 # Gearbox
 #-------------------------------------------------------
-wolfromPlanetaryGearboxInstance = wolfromPlanetaryGearbox(design_parameters         = wpg_design_params,
+bipathwolfromPlanetaryGearboxInstance = bipathwolfromPlanetaryGearbox(design_parameters         = bipathwpg_design_params,
                                                           gear_standard_parameters  = Gear_standard_parameters,
                                                           densityGears               = PLA["density"],
                                                           densityStructure            = PLA["density"],
@@ -302,65 +302,65 @@ wolfromPlanetaryGearboxInstance = wolfromPlanetaryGearbox(design_parameters     
 #-------------------------------------------------------
 # Actuator
 #-------------------------------------------------------
-maxGBDia_multFactor           = wpg_optimization_params["MAX_GB_DIA_MULT_FACTOR"] # 1
-maxGBDia_multFactor_MAD_M6C12 = wpg_optimization_params["MAX_GB_DIA_MULT_FACTOR_MAD_M6C12"] # 1.25
+maxGBDia_multFactor           = bipathwpg_optimization_params["MAX_GB_DIA_MULT_FACTOR"] # 1
+maxGBDia_multFactor_MAD_M6C12 = bipathwpg_optimization_params["MAX_GB_DIA_MULT_FACTOR_MAD_M6C12"] # 1.25
 
-maxGearboxDiameter_U8           = maxGBDia_multFactor * MotorU8.motorDiaMM     - 2*wpg_design_params["ringRadialWidthMMBig"]
-maxGearboxDiameter_U10          = maxGBDia_multFactor * MotorU10.motorDiaMM    - 2*wpg_design_params["ringRadialWidthMMBig"]
-maxGearboxDiameter_MN8014       = maxGBDia_multFactor * MotorMN8014.motorDiaMM - 2*wpg_design_params["ringRadialWidthMMBig"]
-maxGearboxDiameter_VT8020       = maxGBDia_multFactor * Motor8020.motorDiaMM   - 2*wpg_design_params["ringRadialWidthMMBig"]
-maxGearboxDiameter_U12          = maxGBDia_multFactor * MotorU12.motorDiaMM    - 2*wpg_design_params["ringRadialWidthMMBig"] 
-maxGearboxDiameter_MAD_M6C12    = maxGBDia_multFactor_MAD_M6C12 * MotorMAD_M6C12.motorDiaMM    - 2*wpg_design_params["ringRadialWidthMMBig"] 
+maxGearboxDiameter_U8           = maxGBDia_multFactor * MotorU8.motorDiaMM     - 2*bipathwpg_design_params["ringRadialWidthMMBig"]
+maxGearboxDiameter_U10          = maxGBDia_multFactor * MotorU10.motorDiaMM    - 2*bipathwpg_design_params["ringRadialWidthMMBig"]
+maxGearboxDiameter_MN8014       = maxGBDia_multFactor * MotorMN8014.motorDiaMM - 2*bipathwpg_design_params["ringRadialWidthMMBig"]
+maxGearboxDiameter_VT8020       = maxGBDia_multFactor * Motor8020.motorDiaMM   - 2*bipathwpg_design_params["ringRadialWidthMMBig"]
+maxGearboxDiameter_U12          = maxGBDia_multFactor * MotorU12.motorDiaMM    - 2*bipathwpg_design_params["ringRadialWidthMMBig"] 
+maxGearboxDiameter_MAD_M6C12    = maxGBDia_multFactor_MAD_M6C12 * MotorMAD_M6C12.motorDiaMM    - 2*bipathwpg_design_params["ringRadialWidthMMBig"] 
 
-Actuator_U8     = wolfromPlanetaryActuator(design_parameters        = wpg_design_params,
+Actuator_U8     = bipathwolfromPlanetaryActuator(design_parameters        = bipathwpg_design_params,
                                            motor                    = MotorU8,
                                            motor_driver_params      = Motor_Driver_OdrivePro_params,
-                                           wolfromPlanetaryGearbox  = wolfromPlanetaryGearboxInstance,
+                                           bipathwolfromPlanetaryGearbox  = bipathwolfromPlanetaryGearboxInstance,
                                            FOS                      = MIT_params["FOS"], 
                                            serviceFactor            = MIT_params["serviceFactor"], 
                                            maxGearboxDiameter       = maxGearboxDiameter_U8,
                                            stressAnalysisMethodName = "MIT")
 
-Actuator_U10    = wolfromPlanetaryActuator(design_parameters        = wpg_design_params,
+Actuator_U10    = bipathwolfromPlanetaryActuator(design_parameters        = bipathwpg_design_params,
                                            motor                    = MotorU10,
                                            motor_driver_params      = Motor_Driver_OdrivePro_params,
-                                           wolfromPlanetaryGearbox  = wolfromPlanetaryGearboxInstance,
+                                           bipathwolfromPlanetaryGearbox  = bipathwolfromPlanetaryGearboxInstance,
                                            FOS                      = MIT_params["FOS"], 
                                            serviceFactor            = MIT_params["serviceFactor"], 
                                            maxGearboxDiameter       = maxGearboxDiameter_U10,
                                            stressAnalysisMethodName = "MIT")
 
-Actuator_MN8014 = wolfromPlanetaryActuator(design_parameters       = wpg_design_params,
+Actuator_MN8014 = bipathwolfromPlanetaryActuator(design_parameters       = bipathwpg_design_params,
                                            motor                    = MotorMN8014,
                                            motor_driver_params      = Motor_Driver_OdrivePro_params,
-                                           wolfromPlanetaryGearbox  = wolfromPlanetaryGearboxInstance,
+                                           bipathwolfromPlanetaryGearbox  = bipathwolfromPlanetaryGearboxInstance,
                                            FOS                      = MIT_params["FOS"], 
                                            serviceFactor            = MIT_params["serviceFactor"], 
                                            maxGearboxDiameter       = maxGearboxDiameter_MN8014,
                                            stressAnalysisMethodName = "MIT")
 
-Actuator_VT8020 = wolfromPlanetaryActuator(design_parameters        = wpg_design_params,
+Actuator_VT8020 = bipathwolfromPlanetaryActuator(design_parameters        = bipathwpg_design_params,
                                            motor                    = Motor8020,
                                            motor_driver_params      = Motor_Driver_OdrivePro_params,
-                                           wolfromPlanetaryGearbox  = wolfromPlanetaryGearboxInstance,
+                                           bipathwolfromPlanetaryGearbox  = bipathwolfromPlanetaryGearboxInstance,
                                            FOS                      = MIT_params["FOS"], 
                                            serviceFactor            = MIT_params["serviceFactor"], 
                                            maxGearboxDiameter       = maxGearboxDiameter_VT8020,
                                            stressAnalysisMethodName = "MIT")
 
-Actuator_U12 = wolfromPlanetaryActuator(design_parameters        = wpg_design_params,
+Actuator_U12 = bipathwolfromPlanetaryActuator(design_parameters        = bipathwpg_design_params,
                                         motor                    = MotorU12,
                                            motor_driver_params      = Motor_Driver_OdrivePro_params,
-                                        wolfromPlanetaryGearbox  = wolfromPlanetaryGearboxInstance,
+                                        bipathwolfromPlanetaryGearbox  = bipathwolfromPlanetaryGearboxInstance,
                                         FOS                      = MIT_params["FOS"], 
                                         serviceFactor            = MIT_params["serviceFactor"], 
                                         maxGearboxDiameter       = maxGearboxDiameter_U12,
                                         stressAnalysisMethodName = "MIT")
 
-Actuator_MAD_M6C12 = wolfromPlanetaryActuator(design_parameters        = wpg_design_params,
+Actuator_MAD_M6C12 = bipathwolfromPlanetaryActuator(design_parameters        = bipathwpg_design_params,
                                         motor                    = MotorMAD_M6C12,
                                            motor_driver_params      = Motor_Driver_OdrivePro_params,
-                                        wolfromPlanetaryGearbox  = wolfromPlanetaryGearboxInstance,
+                                        bipathwolfromPlanetaryGearbox  = bipathwolfromPlanetaryGearboxInstance,
                                         FOS                      = MIT_params["FOS"], 
                                         serviceFactor            = MIT_params["serviceFactor"], 
                                         maxGearboxDiameter       = maxGearboxDiameter_MAD_M6C12,
@@ -375,21 +375,21 @@ K_Mass = opt_param["K_Mass"]
 K_Eff  = opt_param["K_Eff"]
 K_Width  = opt_param["K_Width"]
 
-GEAR_RATIO_MIN  = wpg_optimization_params["GEAR_RATIO_MIN"]  # 4
-GEAR_RATIO_MAX  = wpg_optimization_params["GEAR_RATIO_MAX"]  # 45
-GEAR_RATIO_STEP = wpg_optimization_params["GEAR_RATIO_STEP"] # 1
+GEAR_RATIO_MIN  = bipathwpg_optimization_params["GEAR_RATIO_MIN"]  # 4
+GEAR_RATIO_MAX  = bipathwpg_optimization_params["GEAR_RATIO_MAX"]  # 45
+GEAR_RATIO_STEP = bipathwpg_optimization_params["GEAR_RATIO_STEP"] # 1
 
-MODULE_BIG_MIN             = wpg_optimization_params["MODULE_BIG_MIN"]             # 0.5
-MODULE_BIG_MAX             = wpg_optimization_params["MODULE_BIG_MAX"]             # 1.2
-MODULE_SMALL_MIN           = wpg_optimization_params["MODULE_SMALL_MIN"]           # 0.5
-MODULE_SMALL_MAX           = wpg_optimization_params["MODULE_SMALL_MAX"]           # 1.2
-NUM_PLANET_MIN             = wpg_optimization_params["NUM_PLANET_MIN"]             # 3  
-NUM_PLANET_MAX             = wpg_optimization_params["NUM_PLANET_MAX"]             # 5  
-NUM_TEETH_SUN_MIN          = wpg_optimization_params["NUM_TEETH_SUN_MIN"]          # 20 
-NUM_TEETH_PLANET_BIG_MIN   = wpg_optimization_params["NUM_TEETH_PLANET_BIG_MIN"]   # 20 
-NUM_TEETH_PLANET_SMALL_MIN = wpg_optimization_params["NUM_TEETH_PLANET_SMALL_MIN"] # 20 
+MODULE_BIG_MIN             = bipathwpg_optimization_params["MODULE_BIG_MIN"]             # 0.5
+MODULE_BIG_MAX             = bipathwpg_optimization_params["MODULE_BIG_MAX"]             # 1.2
+MODULE_SMALL_MIN           = bipathwpg_optimization_params["MODULE_SMALL_MIN"]           # 0.5
+MODULE_SMALL_MAX           = bipathwpg_optimization_params["MODULE_SMALL_MAX"]           # 1.2
+NUM_PLANET_MIN             = bipathwpg_optimization_params["NUM_PLANET_MIN"]             # 3  
+NUM_PLANET_MAX             = bipathwpg_optimization_params["NUM_PLANET_MAX"]             # 5  
+NUM_TEETH_SUN_MIN          = bipathwpg_optimization_params["NUM_TEETH_SUN_MIN"]          # 20 
+NUM_TEETH_PLANET_BIG_MIN   = bipathwpg_optimization_params["NUM_TEETH_PLANET_BIG_MIN"]   # 20 
+NUM_TEETH_PLANET_SMALL_MIN = bipathwpg_optimization_params["NUM_TEETH_PLANET_SMALL_MIN"] # 20 
 
-Optimizer_U8     = optimizationWolfromPlanetaryActuator(design_parameters          = wpg_design_params         ,
+Optimizer_U8     = optimizationbipathWolfromPlanetaryActuator(design_parameters          = bipathwpg_design_params         ,
                                                         gear_standard_parameters   = Gear_standard_parameters  ,
                                                         K_Mass                     = K_Mass                    ,
                                                         K_Eff                      = K_Eff                     ,
@@ -407,7 +407,7 @@ Optimizer_U8     = optimizationWolfromPlanetaryActuator(design_parameters       
                                                         GEAR_RATIO_MAX             = GEAR_RATIO_MAX            ,
                                                         GEAR_RATIO_STEP            = GEAR_RATIO_STEP           )
 
-Optimizer_U10    = optimizationWolfromPlanetaryActuator(design_parameters          = wpg_design_params         ,
+Optimizer_U10    = optimizationbipathWolfromPlanetaryActuator(design_parameters          = bipathwpg_design_params         ,
                                                         gear_standard_parameters   = Gear_standard_parameters  ,
                                                         K_Mass                     = K_Mass                    ,
                                                         K_Eff                      = K_Eff                     ,
@@ -425,7 +425,7 @@ Optimizer_U10    = optimizationWolfromPlanetaryActuator(design_parameters       
                                                         GEAR_RATIO_MAX             = GEAR_RATIO_MAX            ,
                                                         GEAR_RATIO_STEP            = GEAR_RATIO_STEP           )
 
-Optimizer_MN8014 = optimizationWolfromPlanetaryActuator(design_parameters          = wpg_design_params         ,
+Optimizer_MN8014 = optimizationbipathWolfromPlanetaryActuator(design_parameters          = bipathwpg_design_params         ,
                                                         gear_standard_parameters   = Gear_standard_parameters  ,
                                                         K_Mass                     = K_Mass                    ,
                                                         K_Eff                      = K_Eff                     ,
@@ -443,7 +443,7 @@ Optimizer_MN8014 = optimizationWolfromPlanetaryActuator(design_parameters       
                                                         GEAR_RATIO_MAX             = GEAR_RATIO_MAX            ,
                                                         GEAR_RATIO_STEP            = GEAR_RATIO_STEP           )
 
-Optimizer_VT8020 = optimizationWolfromPlanetaryActuator(design_parameters          = wpg_design_params         ,
+Optimizer_VT8020 = optimizationbipathWolfromPlanetaryActuator(design_parameters          = bipathwpg_design_params         ,
                                                         gear_standard_parameters   = Gear_standard_parameters  ,
                                                         K_Mass                     = K_Mass                    ,
                                                         K_Eff                      = K_Eff                     ,
@@ -461,7 +461,7 @@ Optimizer_VT8020 = optimizationWolfromPlanetaryActuator(design_parameters       
                                                         GEAR_RATIO_MAX             = GEAR_RATIO_MAX            ,
                                                         GEAR_RATIO_STEP            = GEAR_RATIO_STEP           )
 
-Optimizer_U12 = optimizationWolfromPlanetaryActuator(design_parameters          = wpg_design_params         ,
+Optimizer_U12 = optimizationbipathWolfromPlanetaryActuator(design_parameters          = bipathwpg_design_params         ,
                                                      gear_standard_parameters   = Gear_standard_parameters  ,
                                                      K_Mass                     = K_Mass                    ,
                                                      K_Eff                      = K_Eff                     ,
@@ -479,7 +479,7 @@ Optimizer_U12 = optimizationWolfromPlanetaryActuator(design_parameters          
                                                      GEAR_RATIO_MAX             = GEAR_RATIO_MAX            ,
                                                      GEAR_RATIO_STEP            = GEAR_RATIO_STEP           )
 
-Optimizer_MAD_M6C12 = optimizationWolfromPlanetaryActuator(design_parameters          = wpg_design_params         ,
+Optimizer_MAD_M6C12 = optimizationbipathWolfromPlanetaryActuator(design_parameters          = bipathwpg_design_params         ,
                                                      gear_standard_parameters   = Gear_standard_parameters  ,
                                                      K_Mass                     = K_Mass                    ,
                                                      K_Eff                      = K_Eff                     ,
