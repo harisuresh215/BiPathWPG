@@ -11,4 +11,4 @@ K_mass, K_Eff, MODULE_BIG_MIN, MODULE_BIG_MAX, MODULE_SMALL_MIN, MODULE_SMALL_MA
 1 , -2 , 0.5 , 1.2 , 0.5 , 1.2 , 3 , 7 , 18 , 28 , 28 , 4 , 60 , 1
  
 iter, gearRatio, moduleBig, moduleSmall, Ns, NpBig, NpSmall, NrBig, NrSmall, numPlanet, fwSunMM, fwPlanetBigMM, fwPanetSmallMM, fwRingBigMM, fwRingSmallMM,  mass, eff, peakTorque, Cost, Torque_Density, Outer_Bearing_mass, Actuator_width
-12 , 11.6875 , 0.5 , 0.5 , 80 , 55 , 35 , 190 , 170 , 5 , 4.873 , 21.365 , 14.311 , 21.365 , 14.311 , 1.55 , 0.907 , 88.356 , 6.870053724970267 , 57.004 , 0.149 , 124.7759646662766
+23 , 16.333333333333332 , 0.7 , 0.7 , 54 , 42 , 30 , 138 , 126 , 6 , 3.295 , 18.66 , 23.831 , 18.66 , 23.831 , 1.644 , 0.856 , 123.478 , 8.429510427222285 , 75.108 , 0.149 , 131.59003603303347

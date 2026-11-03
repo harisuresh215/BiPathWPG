@@ -1,3 +1,4 @@
+
 from typing import Any
 import numpy as np
 import os
@@ -224,6 +225,7 @@ class nuts_and_bolts_dimensions:
 
         return [width_across_flats, height]
 
+
 #=========================================================================
 # Motor class
 #=========================================================================
@@ -338,7 +340,12 @@ class motor_driver:
         print("driver_mount_height: ", self.driver_mount_height)
         print("---")
 
+#==
 #=========================================================================
+# Gearbox classes
+#=========================================================================
+
+
 #-------------------------------------------------------------------------
 # Bipath3K - Planetary Gearbox (Bipathwolfrom Planetary Gearbox)
 #-------------------------------------------------------------------------
@@ -392,6 +399,7 @@ class bipathwolfromPlanetaryGearbox:
         self.fwRingBigMM     = fwRingBigMM
         self.fwRingSmallMM   = fwRingSmallMM
         self.fwFloatingSunMM = 5.0
+        self.fwIdlerMM       = 5.0
         #------------------------------
         # Gearbox parameters
         #------------------------------
@@ -991,6 +999,10 @@ class bipathwolfromPlanetaryGearbox:
     def setfwFloatingSunMM(self, fw):   
         self.fwFloatingSunMM = fw
 
+    
+    def setfwIdlerMM(self, fw):
+        self.fwIdlerMM = fw
+
     def getEfficiencySunPlanet(self):
         module = self.moduleBig                                       # Module of the gear
         alpha = self.pressureAngleDEG * np.pi / 180                   # Pressure angle in radians
@@ -1464,6 +1476,7 @@ class bipathwolfromPlanetaryActuator:
         else:
             self.dp_fs = self.db_fs = self.alpha_fs = self.beta_fs = 0.0
         self.fw_fs              = max(self.fw_p_s, gb.fwFloatingSunMM)
+        self.fw_idler           = gb.fwIdlerMM
         self.num_idler          = self.num_planet
         self.idler_angle_offset = 180 / self.num_planet
         sun_r = self.dp_s/2 + (self.module if gb.mainSunToothedInPlane2 else -1.25*self.module)
@@ -1474,7 +1487,7 @@ class bipathwolfromPlanetaryActuator:
     def genEquationFile(self, motor_name="NO_MOTOR", gearRatioLL = 0.0, gearRatioUL = 0.0):
         # writing values into text file imported which is imported into solidworks
         self.setVariables()
-        file_path = os.path.join(os.path.dirname(__file__), 'CADs', 'BIPATHWPG', 'Equation_Files', motor_name, f'bwpg_equations_{gearRatioLL}_{gearRatioUL}.txt')
+        file_path = os.path.join(os.path.dirname(__file__), 'CADs', 'BIPATHWPG', 'Equation_Files', motor_name, f'wpg_equations_{gearRatioLL}_{gearRatioUL}.txt')
         # print("File Path: ",file_path)
         with open(file_path, 'w') as eqFile:
             l = [
@@ -1633,10 +1646,11 @@ class bipathwolfromPlanetaryActuator:
                 f'"fs_bore_dia" = {self.fs_bore_dia}\n',
                 f'"fs_bore_wall" = {self.fs_bore_wall}\n',
                 f'"fs_axial_clearance" = {self.fs_axial_clearance}\n',
+                f'"fw_idler" = {self.fw_idler}\n',
             ]
             eqFile.writelines(l)
 
-        file_path = os.path.join(os.path.dirname(__file__), 'CADs', 'BIPATHWPG', 'Equation_Files', motor_name, f'bwpg_equations_{gearRatioLL}_{gearRatioUL}_onshape.txt')
+        file_path = os.path.join(os.path.dirname(__file__), 'CADs', 'BIPATHWPG', 'Equation_Files', motor_name, f'wpg_equations_{gearRatioLL}_{gearRatioUL}_onshape.txt')
         # print("File Path: ",file_path)
         with open(file_path, 'w') as eqFile:
             l = [
@@ -1795,6 +1809,7 @@ class bipathwolfromPlanetaryActuator:
                 f'"fs_bore_dia" = {self.fs_bore_dia}\n',
                 f'"fs_bore_wall" = {self.fs_bore_wall}\n',
                 f'"fs_axial_clearance" = {self.fs_axial_clearance}\n',
+                f'"fw_idler" = {self.fw_idler}\n',               
             ]
             eqFile.writelines(l)
 
@@ -1960,6 +1975,7 @@ class bipathwolfromPlanetaryActuator:
                 f'"fs_bore_dia" = {self.fs_bore_dia}\n',
                 f'"fs_bore_wall" = {self.fs_bore_wall}\n',
                 f'"fs_axial_clearance" = {self.fs_axial_clearance}\n',
+                f'"fw_idler" = {self.fw_idler}\n',
             ]
             eqFile.writelines(l)
 
@@ -2123,6 +2139,7 @@ class bipathwolfromPlanetaryActuator:
                 f'"fs_bore_dia" = {self.fs_bore_dia}\n',
                 f'"fs_bore_wall" = {self.fs_bore_wall}\n',
                 f'"fs_axial_clearance" = {self.fs_axial_clearance}\n',
+                f'"fw_idler" = {self.fw_idler}\n',
             ]
             eqFile.writelines(l)
     
@@ -2132,13 +2149,13 @@ class bipathwolfromPlanetaryActuator:
     def getToothForces(self, constraintCheck=False):
         if constraintCheck:
             # Check if the constraints are satisfied
-            if not self.wolfromPlanetaryGearbox.geometricConstraint():
+            if not self.bipathwolfromPlanetaryGearbox.geometricConstraint():
                 print("Geometric constraint not satisfied")
                 return
-            if not self.wolfromPlanetaryGearbox.meshingConstraint():
+            if not self.bipathwolfromPlanetaryGearbox.meshingConstraint():
                 print("Meshing constraint not satisfied")
                 return
-            if not self.wolfromPlanetaryGearbox.noPlanetInterferenceConstraint():
+            if not self.bipathwolfromPlanetaryGearbox.noPlanetInterferenceConstraint():
                 print("No planet interference constraint not satisfied")
                 return
 
@@ -2206,10 +2223,13 @@ class bipathwolfromPlanetaryActuator:
             print(" ")
             print("RpSmall:", RpSmall_Mt)
             print("NpSmall:", NpSmall)
-
-        Ft_rp_small = Ft_rp_small / 2   # ring load is shared by n planets + n idlers
+       
+        beta           = self.design_params["bypass_load_share"]   # share of ring load on the direct path
+        self.Ft_bypass = Ft_rp_small * (1 - beta)                   # idler-ring, idler-floating sun, floating sun-planet meshes
+        Ft_rp_small    = Ft_rp_small * beta                         # direct planet-ring mesh
         Ft = [Ft_sp_big, Ft_rp_big, Ft_rp_small]
         return Ft
+
 
     def lewisStressAnalysisMinFacewidth(self):
         # Check if the constraints are satisfied
@@ -2302,12 +2322,12 @@ class bipathwolfromPlanetaryActuator:
         # print("V_rp_small:", V_rp_small)
 
         # Lewis static load capacity
-        bMin_sun         = (self.FOS * np.abs(Ft_sp_big   )/ (self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * ySun * Kv_sun * P_big)) # m
-        bMin_planetBig1  = (self.FOS * np.abs(Ft_sp_big   )/ (self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * yPlanetBig * Kv_planetBig1 * P_big))
-        bMin_planetBig2  = (self.FOS * np.abs(Ft_sp_big   )/ (self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * yPlanetBig * Kv_planetBig2 * P_big))
-        bMin_planetSmall = (self.FOS * np.abs(Ft_rp_small )/ (self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * yPlanetSmall * Kv_planetSmall * P_small))
-        bMin_ringBig     = (self.FOS * np.abs(Ft_rp_big   )/ (self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * yRingBig * Kv_ringBig * P_big))
-        bMin_ringSmall   = (self.FOS * np.abs(Ft_rp_small )/ (self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * yRingSmall * Kv_ringSmall * P_small))
+        bMin_sun         = (self.FOS * np.abs(Ft_sp_big   )/ (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * ySun * Kv_sun * P_big)) # m
+        bMin_planetBig1  = (self.FOS * np.abs(Ft_sp_big   )/ (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * yPlanetBig * Kv_planetBig1 * P_big))
+        bMin_planetBig2  = (self.FOS * np.abs(Ft_sp_big   )/ (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * yPlanetBig * Kv_planetBig2 * P_big))
+        bMin_planetSmall = (self.FOS * np.abs(Ft_rp_small )/ (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * yPlanetSmall * Kv_planetSmall * P_small))
+        bMin_ringBig     = (self.FOS * np.abs(Ft_rp_big   )/ (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * yRingBig * Kv_ringBig * P_big))
+        bMin_ringSmall   = (self.FOS * np.abs(Ft_rp_small )/ (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * yRingSmall * Kv_ringSmall * P_small))
 
         # Making the width of the bigger planet to be the maximum of the two
         if bMin_planetBig1 > bMin_planetBig2:
@@ -2327,11 +2347,11 @@ class bipathwolfromPlanetaryActuator:
         else:
             bMin_planetBig = bMin_ringBig
 
-        self.wolfromPlanetaryGearbox.setfwSunMM         ( bMin_sun*1000 )
-        self.wolfromPlanetaryGearbox.setfwPlanetBigMM   ( bMin_planetBig*1000 )
-        self.wolfromPlanetaryGearbox.setfwPlanetSmallMM ( bMin_planetSmall*1000 )
-        self.wolfromPlanetaryGearbox.setfwRingSmallMM   ( bMin_ringSmall*1000 )
-        self.wolfromPlanetaryGearbox.setfwRingBigMM     ( bMin_ringBig*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwSunMM         ( bMin_sun*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwPlanetBigMM   ( bMin_planetBig*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwPlanetSmallMM ( bMin_planetSmall*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwRingSmallMM   ( bMin_ringSmall*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwRingBigMM     ( bMin_ringBig*1000 )
         # print("Lewis:")
         # print(f"bMin_planetSmall = {bMin_planetSmall}")
         # print(f"bMin_planetBig = {bMin_planetBig}")
@@ -2341,24 +2361,24 @@ class bipathwolfromPlanetaryActuator:
 
     def AGMAStressAnalysisMinFacewidth(self):
         # Check if the constraints are satisfied
-        if not self.wolfromPlanetaryGearbox.geometricConstraint():
+        if not self.bipathwolfromPlanetaryGearbox.geometricConstraint():
             print("Geometric constraint not satisfied")
             return
-        if not self.wolfromPlanetaryGearbox.meshingConstraint():
+        if not self.bipathwolfromPlanetaryGearbox.meshingConstraint():
             print("Meshing constraint not satisfied")
             return
-        if not self.wolfromPlanetaryGearbox.noPlanetInterferenceConstraint():
+        if not self.bipathwolfromPlanetaryGearbox.noPlanetInterferenceConstraint():
             print("No planet interference constraint not satisfied")
             return
 
-        Ns          = self.wolfromPlanetaryGearbox.Ns
-        NpBig       = self.wolfromPlanetaryGearbox.NpBig
-        NpSmall     = self.wolfromPlanetaryGearbox.NpSmall
-        NrBig       = self.wolfromPlanetaryGearbox.NrBig
-        NrSmall     = self.wolfromPlanetaryGearbox.NrSmall
-        numPlanet   = self.wolfromPlanetaryGearbox.numPlanet
-        moduleBig   = self.wolfromPlanetaryGearbox.moduleBig
-        moduleSmall = self.wolfromPlanetaryGearbox.moduleSmall
+        Ns          = self.bipathwolfromPlanetaryGearbox.Ns
+        NpBig       = self.bipathwolfromPlanetaryGearbox.NpBig
+        NpSmall     = self.bipathwolfromPlanetaryGearbox.NpSmall
+        NrBig       = self.bipathwolfromPlanetaryGearbox.NrBig
+        NrSmall     = self.bipathwolfromPlanetaryGearbox.NrSmall
+        numPlanet   = self.bipathwolfromPlanetaryGearbox.numPlanet
+        moduleBig   = self.bipathwolfromPlanetaryGearbox.moduleBig
+        moduleSmall = self.bipathwolfromPlanetaryGearbox.moduleSmall
 
         RpBig = NpBig * moduleBig / 2
         RpSmall = NpSmall * moduleSmall / 2
@@ -2373,7 +2393,7 @@ class bipathwolfromPlanetaryActuator:
 
         [Wt_sp_big, Wt_rp_big, Wt_rp_small]  = self.getToothForces(False)
 
-        pressureAngle = self.wolfromPlanetaryGearbox.pressureAngleDEG
+        pressureAngle = self.bipathwolfromPlanetaryGearbox.pressureAngleDEG
 
         # T Krishna Rao - Design of Machine Elements - II pg.191
         # Modified Lewis Form Factor Y = pi*y for pressure angle = 20
@@ -2383,15 +2403,15 @@ class bipathwolfromPlanetaryActuator:
         Y_ringSmall   = (0.154 - 0.912/NrSmall) * np.pi
         Y_ringBig     = (0.154 - 0.912/NrBig) * np.pi
 
-        V_sp_big = np.abs(self.wolfromPlanetaryGearbox.getPCRadiusSunM() * wSun)
-        V_rp_big = np.abs(wCarrier*(self.wolfromPlanetaryGearbox.getPCRadiusSunM() + self.wolfromPlanetaryGearbox.getPCRadiusPlanetBigM()) + 
-                    wPlanet*(self.wolfromPlanetaryGearbox.getPCRadiusPlanetBigM()))
-        V_rp_small = np.abs(wCarrier*(self.wolfromPlanetaryGearbox.getPCRadiusSunM() + self.wolfromPlanetaryGearbox.getPCRadiusPlanetBigM()) +
-                      wPlanet*(self.wolfromPlanetaryGearbox.getPCRadiusPlanetSmallM()))
+        V_sp_big = np.abs(self.bipathwolfromPlanetaryGearbox.getPCRadiusSunM() * wSun)
+        V_rp_big = np.abs(wCarrier*(self.bipathwolfromPlanetaryGearbox.getPCRadiusSunM() + self.bipathwolfromPlanetaryGearbox.getPCRadiusPlanetBigM()) + 
+                    wPlanet*(self.bipathwolfromPlanetaryGearbox.getPCRadiusPlanetBigM()))
+        V_rp_small = np.abs(wCarrier*(self.bipathwolfromPlanetaryGearbox.getPCRadiusSunM() + self.bipathwolfromPlanetaryGearbox.getPCRadiusPlanetBigM()) +
+                      wPlanet*(self.bipathwolfromPlanetaryGearbox.getPCRadiusPlanetSmallM()))
         
         # Check 
-        V_rp_small_test = wRingSmall*(self.wolfromPlanetaryGearbox.getPCRadiusSunM() + self.wolfromPlanetaryGearbox.getPCRadiusPlanetBigM()
-                                      + self.wolfromPlanetaryGearbox.getPCRadiusPlanetSmallM())
+        V_rp_small_test = wRingSmall*(self.bipathwolfromPlanetaryGearbox.getPCRadiusSunM() + self.bipathwolfromPlanetaryGearbox.getPCRadiusPlanetBigM()
+                                      + self.bipathwolfromPlanetaryGearbox.getPCRadiusPlanetSmallM())
         
         if np.abs(V_rp_small - V_rp_small_test) > 1e-6:
             print("----------------------------------------------")
@@ -2476,18 +2496,18 @@ class bipathwolfromPlanetaryActuator:
         Kb = 1
         
         # AGMA bending stress equation (Shigley's Mechanical Engineering Design 9th Edition pg.746)  
-        bMin_planetSmall = (self.FOS * np.abs(Wt_rp_small) * Kv_planetSmall * Ks * Kh * Kb)/(moduleSmall * Yj_planetSmall * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
-        bMin_planetBig = (self.FOS * np.abs(Wt_rp_big) * Kv_planetBig * Ks * Kh * Kb)/(moduleBig * Yj_planetBig * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
-        bMin_sun = (self.FOS * np.abs(Wt_sp_big) * Kv_sun * Ks * Kh * Kb) / (moduleBig * Yj_sun * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
-        bMin_ringSmall = (self.FOS * np.abs(Wt_rp_small) * Kv_ringSmall * Ks * Kh * Kb) / (moduleSmall * Yj_ringSmall * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
-        bMin_ringBig = (self.FOS * np.abs(Wt_rp_big) * Kv_ringBig * Ks * Kh * Kb) / (moduleBig * Yj_ringBig * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        bMin_planetSmall = (self.FOS * np.abs(Wt_rp_small) * Kv_planetSmall * Ks * Kh * Kb)/(moduleSmall * Yj_planetSmall * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        bMin_planetBig = (self.FOS * np.abs(Wt_rp_big) * Kv_planetBig * Ks * Kh * Kb)/(moduleBig * Yj_planetBig * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        bMin_sun = (self.FOS * np.abs(Wt_sp_big) * Kv_sun * Ks * Kh * Kb) / (moduleBig * Yj_sun * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        bMin_ringSmall = (self.FOS * np.abs(Wt_rp_small) * Kv_ringSmall * Ks * Kh * Kb) / (moduleSmall * Yj_ringSmall * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        bMin_ringBig = (self.FOS * np.abs(Wt_rp_big) * Kv_ringBig * Ks * Kh * Kb) / (moduleBig * Yj_ringBig * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
 
         # C_pm = 1.1
-        # X_planetSmall = (self.FOS * np.abs(Wt_rp_small) * Kv_planetSmall * Ks * Kb)/(moduleSmall * Y_planetSmall * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
-        # X_planetBig = (self.FOS * np.abs(Wt_rp_big) * Kv_planetBig * Ks * Kb)/(moduleBig * Y_planetBig * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
-        # X_sun = (self.FOS * np.abs(Wt_sp_big) * Kv_sun * Ks * Kb) / (moduleBig * Y_sun * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
-        # X_ringSmall = (self.FOS * np.abs(Wt_rp_small) * Kv_ringSmall * Ks * Kb) / (moduleSmall * Y_ringSmall * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
-        # X_ringBig = (self.FOS * np.abs(Wt_rp_big) * Kv_ringBig * Ks * Kb) / (moduleBig * Y_ringBig * self.wolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        # X_planetSmall = (self.FOS * np.abs(Wt_rp_small) * Kv_planetSmall * Ks * Kb)/(moduleSmall * Y_planetSmall * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        # X_planetBig = (self.FOS * np.abs(Wt_rp_big) * Kv_planetBig * Ks * Kb)/(moduleBig * Y_planetBig * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        # X_sun = (self.FOS * np.abs(Wt_sp_big) * Kv_sun * Ks * Kb) / (moduleBig * Y_sun * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        # X_ringSmall = (self.FOS * np.abs(Wt_rp_small) * Kv_ringSmall * Ks * Kb) / (moduleSmall * Y_ringSmall * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
+        # X_ringBig = (self.FOS * np.abs(Wt_rp_big) * Kv_ringBig * Ks * Kb) / (moduleBig * Y_ringBig * self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa * 0.001)
 
         # co_eff_of_fwSqr = 0.93/10000
         # co_eff_of_fw_planetSmall = -(C_pm/(moduleSmall*NpSmall*10*0.03937)) + 1/(39.37*X_planetSmall) - 0.0158
@@ -2540,11 +2560,11 @@ class bipathwolfromPlanetaryActuator:
         else:
             bMin_planetBig = bMin_ringBig
 
-        self.wolfromPlanetaryGearbox.setfwSunMM         ( bMin_sun*1000 )
-        self.wolfromPlanetaryGearbox.setfwPlanetBigMM   ( bMin_planetBig*1000 )
-        self.wolfromPlanetaryGearbox.setfwPlanetSmallMM ( bMin_planetSmall*1000 )
-        self.wolfromPlanetaryGearbox.setfwRingSmallMM   ( bMin_ringSmall*1000 )
-        self.wolfromPlanetaryGearbox.setfwRingBigMM     ( bMin_ringBig*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwSunMM         ( bMin_sun*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwPlanetBigMM   ( bMin_planetBig*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwPlanetSmallMM ( bMin_planetSmall*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwRingSmallMM   ( bMin_ringSmall*1000 )
+        self.bipathwolfromPlanetaryGearbox.setfwRingBigMM     ( bMin_ringBig*1000 )
 
         # print("AGMA:")
         # print(f"bMin_planetSmall = {bMin_planetSmall}")
@@ -2650,9 +2670,17 @@ class bipathwolfromPlanetaryActuator:
         if Ns2 > 0:
             qk_fs = (7.65734266e-08*Ns2**4 - 2.19500130e-05*Ns2**3 + 2.33893357e-03*Ns2**2
                      - 1.13320908e-01*Ns2 + 4.44727778)
-            bMin_fs_mm = (self.FOS*np.abs(Ft_rp_small)*qe_pr2*qk_fs
+            
+            bMin_fs_mm = (self.FOS*np.abs(self.Ft_bypass)*qe_pr2*qk_fs
                           / (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa*moduleSmall*0.001)) * 1000
             self.bipathwolfromPlanetaryGearbox.setfwFloatingSunMM(max(bMin_planetSmall_mitMM, bMin_fs_mm))
+
+        # Idler planet width: carries only the bypass force
+        bMin_idler_mm = (self.FOS*np.abs(self.Ft_bypass)*qe_pr2*qk_pr2
+                         / (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa*moduleSmall*0.001)) * 1000
+        idler_floor_mm = self.design_params["idler_bearing_count"] * (self.planet_bearing_width + self.standard_clearance_1_5mm * 1 / 3)
+        fw_idler_mm    = min(max(bMin_idler_mm, idler_floor_mm), bMin_ringSmall_mitMM)   # never wider than the small ring
+        self.bipathwolfromPlanetaryGearbox.setfwIdlerMM(fw_idler_mm)
 
         return bMin_sun_mitMM, bMin_planetBig_mitMM, bMin_planetSmall_mitMM, bMin_ringBig_mitMM, bMin_ringSmall_mitMM
 
@@ -3044,8 +3072,10 @@ class bipathwolfromPlanetaryActuator:
         fs_bore_dia  = 2 * (sun_r_plane2 + self.bipathwolfromPlanetaryGearbox.floatingSunBoreClrMM)
         fs_width_mm  = max(planet2FwMM + clearance_planet, self.bipathwolfromPlanetaryGearbox.fwFloatingSunMM)
         floating_sun_mass        = np.pi*((Ns2*module1*0.5)**2 - (fs_bore_dia*0.5)**2)*fs_width_mm*1e-9*density_3DP_material
-        idler_mass_total         = planet2_volume * density_3DP_material * numPlanet
-        idler_bearing_mass_total = 0.001 * 2 * numPlanet
+
+        idler_volume             = np.pi * ((DiaPlanet2MM*0.5)**2 - (planet_bore*0.5)**2) * self.bipathwolfromPlanetaryGearbox.fwIdlerMM * 1e-9
+        idler_mass_total         = idler_volume * density_3DP_material * numPlanet
+        idler_bearing_mass_total = 0.001 * self.design_params["idler_bearing_count"] * numPlanet 
 
 
         Actuator_mass = (carrier_small_ring_inner_bearing_mass + 
@@ -3060,7 +3090,10 @@ class bipathwolfromPlanetaryActuator:
                         small_ring_bearing_shaft_mass +
                         small_ring_mass +
                         sun_shaft_bearing_mass +
-                        sun_mass)
+                        sun_mass +
+                        floating_sun_mass +
+                        idler_mass_total +
+                        idler_bearing_mass_total)
 
         self.carrier_small_ring_inner_bearing_mass = carrier_small_ring_inner_bearing_mass
         self.carrier_mass                          = carrier_mass
@@ -3185,9 +3218,9 @@ class optimizationbipathWolfromPlanetaryActuator:
             csv = 1
         
         if csv:
-            fileName = f"./results/results_BruteForce_{Actuator.motor.motorName}/WPG_BRUTEFORCE_{Actuator.stressAnalysisMethodName}_{Actuator.motor.motorName}.csv"
+            fileName = f"./results/results_BruteForce_{Actuator.motor.motorName}/BWPG_BRUTEFORCE_{Actuator.stressAnalysisMethodName}_{Actuator.motor.motorName}.csv"
         elif log:
-            fileName = f"./results/results_BruteForce_{Actuator.motor.motorName}/WPG_BRUTEFORCE_{Actuator.stressAnalysisMethodName}_{Actuator.motor.motorName}_LOG.txt"
+            fileName = f"./results/results_BruteForce_{Actuator.motor.motorName}/BWPG_BRUTEFORCE_{Actuator.stressAnalysisMethodName}_{Actuator.motor.motorName}_LOG.txt"
             
         with open(fileName, "w") as wolfromLogFile:
             sys.stdout = wolfromLogFile

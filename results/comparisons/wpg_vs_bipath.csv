@@ -1,0 +1,79 @@
+section,what_it_is,variable,unit,wpg,bipath,difference,change_%
+OVERVIEW,Gear ratio,gearRatio,,16.333333333333332,16.0,-0.333333,-2.041
+OVERVIEW,Actuator mass,mass,kg,1.644,1.678,0.034,2.068
+OVERVIEW,Efficiency,eff,,0.856,0.882,0.026,3.037
+OVERVIEW,Peak output torque,peakTorque,Nm,123.478,120.958,-2.52,-2.041
+OVERVIEW,Torque density,Torque_Density,Nm/kg,75.108,72.085,-3.023,-4.025
+OVERVIEW,Actuator axial width (whole actuator),Actuator_width,mm,131.59003603303347,152.6433418262193,21.053306,15.999
+OVERVIEW,Optimizer cost,Cost,,8.429510427222285,12.622091273270161,4.192581,49.737
+OVERVIEW,Number of planets,numPlanet,,6,4,-2,-33.333
+OVERVIEW,Module,moduleBig,mm,0.7,0.6,-0.1,-14.286
+OVERVIEW,Sun teeth,Ns,,54,40,-14,-25.926
+OVERVIEW,Big planet teeth,NpBig,,42,48,6,14.286
+OVERVIEW,Small planet teeth (= idler teeth),NpSmall,,30,32,2,6.667
+OVERVIEW,Big ring teeth,NrBig,,138,144,6,4.348
+OVERVIEW,Small ring teeth,NrSmall,,126,128,2,1.587
+OVERVIEW,Floating sun teeth,Ns_fs,,,64.0,,
+OVERVIEW,Bypass load share beta (direct path),beta,,1.0,0.625,-0.375,-37.5
+THICKNESS - STAGE 1 (big gears),Big planet gear thickness,fw_p_b,mm,18.66,34.812,16.152,86.559
+THICKNESS - STAGE 1 (big gears),Big ring gear thickness (fixed ring),fw_r_b,mm,18.66,34.812,16.152,86.559
+THICKNESS - STAGE 1 (big gears),Sun min width from stress (reference only),fw_s_calc,mm,3.295,7.664,4.369,132.595
+THICKNESS - STAGE 2 (small gears),Small ring gear thickness (output ring),fw_r_s,mm,23.831,28.732,4.901,20.566
+THICKNESS - STAGE 2 (small gears),Small planet gear thickness,fw_p_s,mm,25.331,30.232,4.901,19.348
+THICKNESS - STAGE 2 (small gears),Floating sun thickness,fw_fs,mm,,30.232,,
+THICKNESS - STAGE 2 (small gears),Idler planet thickness,fw_idler,mm,,17.239,,
+THICKNESS - WHOLE STACK,Sun gear total length,fw_s_used,mm,51.49,72.543,21.053,40.888
+THICKNESS - WHOLE STACK,Gap between carrier plates,carrier_inner_gap,mm,45.491,66.544,21.053,46.279
+THICKNESS - WHOLE STACK,Stage 1 + stage 2 planet widths,gear_stack_width,mm,42.491,63.544,21.053,49.547
+RADIAL THICKNESS (walls),Big ring wall,ring_radial_thickness,mm,5.0,5.0,0.0,0.0
+RADIAL THICKNESS (walls),Small ring casing wall,small_ring_case_thickness,mm,4.0,4.0,0.0,0.0
+RADIAL THICKNESS (walls),Small ring output wall,small_ring_output_wall_thickness,mm,5.0,5.0,0.0,0.0
+RADIAL THICKNESS (walls),Carrier plate,carrier_thickness,mm,4.0,4.0,0.0,0.0
+RADIAL THICKNESS (walls),Sec carrier plate,sec_carrier_thickness,mm,5.0,5.0,0.0,0.0
+"FORCES PER PLANET (tangential, at pitch circle, incl. service factor)",Sun <-> big planet,F_sun_bigplanet,N,100.0,196.87,96.87,96.87
+"FORCES PER PLANET (tangential, at pitch circle, incl. service factor)",Big planet <-> big ring,F_bigplanet_bigring,N,599.99,984.36,384.37,64.063
+"FORCES PER PLANET (tangential, at pitch circle, incl. service factor)",Small planet <-> small ring (direct path),F_smallplanet_smallring,N,699.99,738.27,38.28,5.469
+"FORCES PER PLANET (tangential, at pitch circle, incl. service factor)",Small planet <-> floating sun (bypass),F_smallplanet_floatsun,N,,442.96,,
+"FORCES PER PLANET (tangential, at pitch circle, incl. service factor)",Floating sun <-> idler (bypass),F_floatsun_idler,N,,442.96,,
+"FORCES PER PLANET (tangential, at pitch circle, incl. service factor)",Idler <-> small ring (bypass),F_idler_smallring,N,,442.96,,
+"FORCES PER PLANET (tangential, at pitch circle, incl. service factor)",Total into small ring (direct + bypass),F_total_smallring,N,699.99,1181.23,481.24,68.75
+"FORCES PER PLANET (tangential, at pitch circle, incl. service factor)",Idler pin load (estimate: 2 x bypass),F_idler_pin_est,N,,885.92,,
+OTHER CAD VARIABLES,,Np_b,,42,48,6,14.286
+OTHER CAD VARIABLES,,Np_s,,30,28,-2,-6.667
+OTHER CAD VARIABLES,,Nr_b,,138,136,-2,-1.449
+OTHER CAD VARIABLES,,Nr_s,,126,116,-10,-7.937
+OTHER CAD VARIABLES,,alpha_p_b,,0.8539582918412272,0.8539582918412343,0.0,0.0
+OTHER CAD VARIABLES,,alpha_r_b,,0.8539582918412485,0.8539582918412556,0.0,0.0
+OTHER CAD VARIABLES,,alpha_r_s,,0.8539582918412449,0.8539582918412556,0.0,0.0
+OTHER CAD VARIABLES,,alpha_s,,0.8539582918412449,0.8539582918412485,0.0,0.0
+OTHER CAD VARIABLES,,bearing_ID,,75,70,-5,-6.667
+OTHER CAD VARIABLES,,bearing_OD,,95,90,-5,-5.263
+OTHER CAD VARIABLES,,beta_p_b,,2.5777977020318312,2.0420834163175314,-0.535714,-20.782
+OTHER CAD VARIABLES,,beta_p_s,,4.292083416317482,4.7206548448889105,0.428571,9.985
+OTHER CAD VARIABLES,,beta_r_b,,3.0122644097694535,3.031445995447217,0.019182,0.637
+OTHER CAD VARIABLES,,beta_r_s,,3.1364880122539187,3.259640721613546,0.123153,3.926
+OTHER CAD VARIABLES,,beta_s,,1.6254167496508436,2.792083416317503,1.166667,71.776
+OTHER CAD VARIABLES,,carrier_PCD,,67.19999999999999,61.599999999999994,-5.6,-8.333
+OTHER CAD VARIABLES,,db_p_b,,27.626963051105708,31.57367205840652,3.946709,14.286
+OTHER CAD VARIABLES,,db_p_s,,19.733545036504076,18.417975367403802,-1.31557,-6.667
+OTHER CAD VARIABLES,,db_r_b,,90.77430716791875,89.45873749881846,-1.31557,-1.449
+OTHER CAD VARIABLES,,db_r_s,,82.88088915331711,76.30304080781575,-6.577848,-7.937
+OTHER CAD VARIABLES,,db_s,,35.52038106570733,26.311393382005434,-9.208988,-25.926
+OTHER CAD VARIABLES,,dp_p_b,,29.4,33.599999999999994,4.2,14.286
+OTHER CAD VARIABLES,,dp_p_s,,21.0,19.599999999999998,-1.4,-6.667
+OTHER CAD VARIABLES,,dp_r_b,,96.6,95.19999999999999,-1.4,-1.449
+OTHER CAD VARIABLES,,dp_r_s,,88.19999999999999,81.19999999999999,-7.0,-7.937
+OTHER CAD VARIABLES,,dp_s,,37.8,28.0,-9.8,-25.926
+OTHER CAD VARIABLES,,gear_casing_big_ring_to_bearing_dist,,34.33050729126454,31.592756903618294,-2.73775,-7.975
+OTHER CAD VARIABLES,,num_planet,,6,4,-2,-33.333
+OTHER CAD VARIABLES,,output_mounting_PCD,,103,98,-5,-4.854
+OTHER CAD VARIABLES,,ring_OD_b,,106.6,105.19999999999999,-1.4,-1.313
+OTHER CAD VARIABLES,,dp_fs,,,42.0,,
+OTHER CAD VARIABLES,,db_fs,,,39.46709007300815,,
+OTHER CAD VARIABLES,,alpha_fs,,,0.8539582918412592,,
+OTHER CAD VARIABLES,,beta_fs,,,1.2920834163174817,,
+OTHER CAD VARIABLES,,num_idler,,,4,,
+OTHER CAD VARIABLES,,idler_angle_offset,,,45.0,,
+OTHER CAD VARIABLES,,fs_bore_dia,,,31.0,,
+OTHER CAD VARIABLES,,fs_bore_wall,,,4.625,,
+OTHER CAD VARIABLES,,fs_axial_clearance,,,0.8,,

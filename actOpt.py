@@ -55,7 +55,7 @@ def main(motor, gearbox_type, gear_ratio=0):
             print("-------------------------------")
             print("Optimal Parameters:")
             print("Number of teeth: Sun1(Ns1):", opt_parameters[2], ", Planet1(Np1):", opt_parameters[3], ", Ring1(R1):", opt_parameters[4], ", Planet2(Np2):", opt_parameters[5], ", Ring2(Nr2):", opt_parameters[6],
-                  ", Module1(m1):", opt_parameters[7], ", Module2(m2):", opt_parameters[8], ", NumPlanet(n_p):", "Sun2(Ns2): ", opt_parameters[6] - 2 * opt_parameters[5])
+                  ", Module1(m1):", opt_parameters[7], ", Module2(m2):", opt_parameters[8], ", NumPlanet(n_p):", opt_parameters[1]," ,Sun2(Ns2): ", opt_parameters[6] - 2 * opt_parameters[5])
             print("---")
             print("Gear Ratio(GR):", opt_parameters[0],": 1")
             print("-------------------------------")
