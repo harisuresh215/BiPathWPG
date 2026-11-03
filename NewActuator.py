@@ -437,17 +437,19 @@ class bipathwolfromPlanetaryGearbox:
         return oldrule and newrule
     
     def noPlanetInterferenceConstraint(self):
-         oldrule = 2*(self.Ns + self.NpBig)*self.moduleBig*np.sin(np.pi/self.numPlanet) >= 2*self.moduleBig*self.NpBig + self.planetMinDistanceMM
-         m, n, Ns2 = self.moduleBig, self.numPlanet, self.getFloatingSunTeeth()
-         if Ns2 < self.floatingSunMinTeeth:
-             return False
-         Rc      = (self.Ns + self.NpBig) * m / 2                         # radius of the circle the planets sit on
-         Rtip    = self.NpSmall * self.moduleSmall / 2 + self.moduleSmall # small planet tip radius
-         gap_ok  = (2*Rc*np.sin(np.pi/(2*n)) - 2*Rtip) >= self.idlerMinGapMM
-         sun_r   = self.Ns*m/2 + (m if self.mainSunToothedInPlane2 else -1.25*m)
-         root_fs = Ns2*m/2 - 1.25*m
-         wall_ok = (root_fs - sun_r) >= (self.floatingSunMinWallMM + self.floatingSunBoreClrMM)
-         return oldrule and gap_ok and wall_ok
+        oldrule = 2*(self.Ns + self.NpBig)*self.moduleBig*np.sin(np.pi/self.numPlanet) >= 2*self.moduleBig*self.NpBig + self.planetMinDistanceMM
+        Ns2 = self.getFloatingSunTeeth()
+        if Ns2 < self.floatingSunMinTeeth:
+            return False
+        # Stage 2: small planet vs idler, pitch radii
+        # 2*(R_fs + R_p2)*sin(pi/(2*n_p2)) - R_p2 - R_i >= delta_i
+        n_p2 = self.numPlanet                                  # n_p2 = n_p1 (common shaft)
+        a    = (self.Ns + self.NpBig) * self.moduleBig / 2     # a = R_s1 + R_p1 = R_fs + R_p2
+        R_p2 = self.NpSmall * self.moduleSmall / 2             # small planet pitch radius
+        R_i  = R_p2                                            # idler pitch radius (identical to small planet)
+        gap_ok = 2*a*np.sin(np.pi/(2*n_p2)) - R_p2 - R_i >= self.idlerMinGapMM
+
+        return oldrule and gap_ok
     
 
     def getMassKG(self):
@@ -1643,9 +1645,6 @@ class bipathwolfromPlanetaryActuator:
                 f'"fw_fs" = {self.fw_fs}\n',
                 f'"num_idler" = {self.num_idler}\n',
                 f'"idler_angle_offset" = {self.idler_angle_offset}\n',
-                f'"fs_bore_dia" = {self.fs_bore_dia}\n',
-                f'"fs_bore_wall" = {self.fs_bore_wall}\n',
-                f'"fs_axial_clearance" = {self.fs_axial_clearance}\n',
                 f'"fw_idler" = {self.fw_idler}\n',
             ]
             eqFile.writelines(l)
@@ -1806,9 +1805,6 @@ class bipathwolfromPlanetaryActuator:
                 f'"fw_fs" = {self.fw_fs}\n',
                 f'"num_idler" = {self.num_idler}\n',
                 f'"idler_angle_offset" = {self.idler_angle_offset}\n',
-                f'"fs_bore_dia" = {self.fs_bore_dia}\n',
-                f'"fs_bore_wall" = {self.fs_bore_wall}\n',
-                f'"fs_axial_clearance" = {self.fs_axial_clearance}\n',
                 f'"fw_idler" = {self.fw_idler}\n',               
             ]
             eqFile.writelines(l)
@@ -1972,9 +1968,6 @@ class bipathwolfromPlanetaryActuator:
                 f'"fw_fs" = {self.fw_fs}\n',
                 f'"num_idler" = {self.num_idler}\n',
                 f'"idler_angle_offset" = {self.idler_angle_offset}\n',
-                f'"fs_bore_dia" = {self.fs_bore_dia}\n',
-                f'"fs_bore_wall" = {self.fs_bore_wall}\n',
-                f'"fs_axial_clearance" = {self.fs_axial_clearance}\n',
                 f'"fw_idler" = {self.fw_idler}\n',
             ]
             eqFile.writelines(l)
@@ -2136,9 +2129,6 @@ class bipathwolfromPlanetaryActuator:
                 f'"fw_fs" = {self.fw_fs}\n',
                 f'"num_idler" = {self.num_idler}\n',
                 f'"idler_angle_offset" = {self.idler_angle_offset}\n',
-                f'"fs_bore_dia" = {self.fs_bore_dia}\n',
-                f'"fs_bore_wall" = {self.fs_bore_wall}\n',
-                f'"fs_axial_clearance" = {self.fs_axial_clearance}\n',
                 f'"fw_idler" = {self.fw_idler}\n',
             ]
             eqFile.writelines(l)
@@ -3068,10 +3058,10 @@ class bipathwolfromPlanetaryActuator:
 
         # FIXME : New content
         Ns2          = self.bipathwolfromPlanetaryGearbox.getFloatingSunTeeth()
-        sun_r_plane2 = Rs_MM + (module1 if self.bipathwolfromPlanetaryGearbox.mainSunToothedInPlane2 else -1.25*module1)
-        fs_bore_dia  = 2 * (sun_r_plane2 + self.bipathwolfromPlanetaryGearbox.floatingSunBoreClrMM)
+        fs_bore_dia  = self.planet_bearing_OD                     # floating sun runs on the same bearings as the planets
         fs_width_mm  = max(planet2FwMM + clearance_planet, self.bipathwolfromPlanetaryGearbox.fwFloatingSunMM)
-        floating_sun_mass        = np.pi*((Ns2*module1*0.5)**2 - (fs_bore_dia*0.5)**2)*fs_width_mm*1e-9*density_3DP_material
+        floating_sun_mass         = np.pi*((Ns2*module2*0.5)**2 - (fs_bore_dia*0.5)**2)*fs_width_mm*1e-9*density_3DP_material
+        floating_sun_bearing_mass = 2 * planet_bearing_mass       # two bearings, same type as the planets
 
         idler_volume             = np.pi * ((DiaPlanet2MM*0.5)**2 - (planet_bore*0.5)**2) * self.bipathwolfromPlanetaryGearbox.fwIdlerMM * 1e-9
         idler_mass_total         = idler_volume * density_3DP_material * numPlanet
@@ -3093,7 +3083,8 @@ class bipathwolfromPlanetaryActuator:
                         sun_mass +
                         floating_sun_mass +
                         idler_mass_total +
-                        idler_bearing_mass_total)
+                        idler_bearing_mass_total +
+                        floating_sun_bearing_mass)
 
         self.carrier_small_ring_inner_bearing_mass = carrier_small_ring_inner_bearing_mass
         self.carrier_mass                          = carrier_mass
