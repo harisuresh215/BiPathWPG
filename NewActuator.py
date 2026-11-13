@@ -20,13 +20,12 @@ class material:
 # class bearings
 #-------------------------------------------------------------------------
 class bearings_discrete:
-    def __init__(self,idRequiredMM):
-        # Bearing dataset entered according to e1102 in [idMM,odMM,widthMM,massKG] format pg no b10-12
+    def __init__(self,idRequiredMM, odRequiredMM = 0):        # Bearing dataset entered according to e1102 in [idMM,odMM,widthMM,massKG] format pg no b10-12
         self.data_bearings = [[10,19,5,0.005],[12,21,5,0.006],[15,24,5,0.007],[17,26,5,0.007],[20,32,7,0.017],[25,37,7,0.021],[28,52,12,0.096],[30,42,7,0.024],[32,58,13,0.122],[35,47,7,0.027],[40,52,7,0.031],[45,58,7,0.038],[50,65,7,0.050],[55,72,9,0.081],[60,78,10,0.103],[65,85,10,0.128],[70,90,10,0.134],[75,95,10,0.149],[80,100,10,0.151],[85,110,13,0.263],
                               [90,115,13,0.276],[95,120,13,0.297],[100,125,13,0.31],[105,130,13,0.324],[110,140,16,0.497],[120,150,16,0.537],[130,165,18,0.758],[140,170,18,0.832],[150,190,20,1.15],[160,200,20,1.23]]
         self.idRequiredMM = idRequiredMM
         self.indexBearing =   0
-        while (self.data_bearings[self.indexBearing][0] < self.idRequiredMM):
+        while (self.data_bearings[self.indexBearing][0] < self.idRequiredMM or self.data_bearings[self.indexBearing][1] < odRequiredMM):
             self.indexBearing +=1
         # # Extract columns
         # data_bearings = np.array(self.data_bearings)
@@ -424,7 +423,7 @@ class bipathwolfromPlanetaryGearbox:
         self.profileShiftCoefficientPlanetBig   = self.profileShiftCoefficientRingBig
         self.profileShiftCoefficientPlanetSmall = self.profileShiftCoefficientRingSmall
         self.profileShiftCoefficientSun         = -self.profileShiftCoefficientPlanetBig
-    # FIXME  :recheck constrainsts  
+    # FIXME  : constrainsts  
     def geometricConstraint(self):
         return (((self.Ns + self.NpBig) * self.moduleBig == (self.NrSmall - self.NpSmall) * self.moduleSmall) and
                 ((self.Ns + 2 * self.NpBig) == (self.NrBig)) and
@@ -443,12 +442,13 @@ class bipathwolfromPlanetaryGearbox:
             return False
         # Stage 2: small planet vs idler, pitch radii
         # 2*(R_fs + R_p2)*sin(pi/(2*n_p2)) - R_p2 - R_i >= delta_i
-        n_p2 = self.numPlanet                                  # n_p2 = n_p1 (common shaft)
+        n_p2 = self.numPlanet                                 
         a    = (self.Ns + self.NpBig) * self.moduleBig / 2     # a = R_s1 + R_p1 = R_fs + R_p2
         R_p2 = self.NpSmall * self.moduleSmall / 2             # small planet pitch radius
         R_i  = R_p2                                            # idler pitch radius (identical to small planet)
-        gap_ok = 2*a*np.sin(np.pi/(2*n_p2)) - R_p2 - R_i >= self.idlerMinGapMM
-
+        gap_ok = 2*a*np.sin(np.pi/(2*n_p2)) - R_p2 - R_i >= self.idlerMinGapMM 
+        if self.getFloatingSunTeeth() > 105:   # beta goes negative above 105
+            return False
         return oldrule and gap_ok
     
 
@@ -1321,6 +1321,7 @@ class bipathwolfromPlanetaryActuator:
         self.planet_bearing_OD        = self.design_params["planet_bearing_OD"] # 12
         self.planet_bearing_width     = self.design_params["planet_bearing_width"] # 3
         self.planet_bore              = self.design_params["planet_bore"] # 10
+        self.stage2_min_fw_mm         = 2.5 * self.planet_bearing_width   # minimum stage-2 width: 2 bearings + clearance (8.75 mm)
 
         planet_pin_bolt = nuts_and_bolts_dimensions(bolt_dia=self.planet_pin_bolt_dia, bolt_type="socket_head")
         self.planet_pin_socket_head_dia  = planet_pin_bolt.bolt_head_dia # 8.5
@@ -1434,7 +1435,7 @@ class bipathwolfromPlanetaryActuator:
 
         # --- Bearing ---
         IdrequiredMM = self.module * (self.Ns + self.Np_b) + self.bearingIDClearanceMM
-        Bearings            = bearings_discrete(IdrequiredMM)
+        Bearings            = bearings_discrete(IdrequiredMM, self.Nr_s * self.module + 2 * self.ring_radial_thickness + 2 * self.standard_clearance_1_5mm)   # bearing OD >= ring-2 OD + clearance
         self.bearing_ID     = Bearings.getBearingIDMM()
         self.bearing_OD     = Bearings.getBearingODMM()
         self.bearing_height = Bearings.getBearingWidthMM()
@@ -1442,7 +1443,7 @@ class bipathwolfromPlanetaryActuator:
         # --- Motor & Gearbox casing ---
         self.case_dist = self.sec_carrier_thickness + self.clearance_planet + self.sun_coupler_hub_thickness - self.case_mounting_surface_height
         self.case_mounting_hole_shift = self.case_mounting_hole_dia / 2 - 0.5
-        self.clearance_motor_and_case = (5 if ((self.Ns + self.Np_b * 2) * self.module) < self.motor_OD else (((self.Ns + self.Np_b * 2) * self.module - self.motor_OD) * 0.5 + 5) )
+        self.clearance_motor_and_case = max(5, ((self.Ns + self.Np_b * 2) * self.module - self.motor_OD) * 0.5 + 5, (self.bearing_OD + 4 * self.output_mounting_hole_dia - self.motor_OD) * 0.5)   # casing ID >= ring 1 and >= bearing holder        
         self.motor_case_OD_base = self.motor_OD + self.clearance_motor_and_case * 2 + self.Motor_case_thickness * 2
         self.case_mounting_PCD = self.motor_case_OD_base + self.case_mounting_hole_shift * 2
         self.Motor_case_OD_max = self.case_mounting_PCD + self.case_mounting_hole_allen_socket_dia + self.clearance_case_mount_holes_shell_thickness * 2
@@ -1467,7 +1468,7 @@ class bipathwolfromPlanetaryActuator:
                                + self.case_mounting_surface_height
                                + self.standard_clearance_1_5mm
                                + self.base_plate_thickness)
-        # FIXME : Modifications made
+        # FIXME : REMOVE THESE CHANGES
         gb = self.bipathwolfromPlanetaryGearbox
         self.Ns_fs = gb.getFloatingSunTeeth()
         if self.Ns_fs > 0:
@@ -2644,6 +2645,10 @@ class bipathwolfromPlanetaryActuator:
             bMin_ringBig_mit   = bMin_planetBig_mit
             bMin_ringSmall_mit = bMin_planetSmall_mit
 
+        # FIXME : This is a temporary fix to ensure that the planet width is not less than the minimum required width to accommodate the bearings. 
+        
+        bMin_planetSmall_mit   = max(bMin_planetSmall_mit, self.stage2_min_fw_mm / 1000)   # m
+        bMin_ringSmall_mit     = max(bMin_ringSmall_mit,   bMin_planetSmall_mit)            # ring 2 = small planet
         bMin_sun_mitMM         = bMin_sun_mit * 1000
         bMin_planetBig_mitMM   = bMin_planetBig_mit * 1000
         bMin_planetSmall_mitMM = bMin_planetSmall_mit * 1000
@@ -2669,9 +2674,10 @@ class bipathwolfromPlanetaryActuator:
         bMin_idler_mm = (self.FOS*np.abs(self.Ft_bypass)*qe_pr2*qk_pr2
                          / (self.bipathwolfromPlanetaryGearbox.maxGearAllowableStressPa*moduleSmall*0.001)) * 1000
         idler_floor_mm = self.design_params["idler_bearing_count"] * (self.planet_bearing_width + self.standard_clearance_1_5mm * 1 / 3)
-        fw_idler_mm    = min(max(bMin_idler_mm, idler_floor_mm), bMin_ringSmall_mitMM)   # never wider than the small ring
+        fw_idler_mm    = max(min(max(bMin_idler_mm, idler_floor_mm), bMin_ringSmall_mitMM), self.stage2_min_fw_mm)   # never wider than ring 2, never thinner than 2.5 bearings
+        # FIXME 
+        # fw_idler_mm = max(fw_idler_mm, bMin_planetSmall_mitMM)   # idler width = max(stage-2 planet width, computed idler width)
         self.bipathwolfromPlanetaryGearbox.setfwIdlerMM(fw_idler_mm)
-
         return bMin_sun_mitMM, bMin_planetBig_mitMM, bMin_planetSmall_mitMM, bMin_ringBig_mitMM, bMin_ringSmall_mitMM
 
     def updateFacewidth(self):
@@ -2779,8 +2785,7 @@ class bipathwolfromPlanetaryActuator:
         #-------------------------------
         IdRequiredMM      = module1 * (Ns + Np1) + bearingIDClearanceMM 
                                                                                
-        Bearing           = bearings_discrete(IdRequiredMM)
-
+        Bearing           = bearings_discrete(IdRequiredMM, Nr2 * module2 + 2 * ring2_radial_thickness + 2 * standard_clearance_1_5mm)   # bearing OD >= ring-2 OD + clearance
         InnerDiaBearingMM = Bearing.getBearingIDMM()
         OuterDiaBearingMM = Bearing.getBearingODMM()
         WidthBearingMM    = Bearing.getBearingWidthMM()
@@ -2832,10 +2837,7 @@ class bipathwolfromPlanetaryActuator:
         ring1_OD  = Nr1 * module1 + ring1_radial_thickness*2
         motor_OD = self.motorDiaMM
 
-        if (ring1_OD < motor_OD):
-            clearance_motor_and_case = 5
-        else: 
-            clearance_motor_and_case = (ring1_OD - motor_OD)/2 + 5
+        clearance_motor_and_case = max(5, (ring1_OD - motor_OD)/2 + 5, (bearing_OD + 4 * output_mounting_hole_dia - motor_OD)/2)   # casing ID >= ring 1 and >= bearing holder
 
         motor_height      = self.motorLengthMM
         Motor_case_height = motor_height + case_mounting_surface_height + standard_clearance_1_5mm
